@@ -296,6 +296,20 @@ namespace metadata
             newMethod->virtualMethodPointerCallByInterp = newMethod->virtualMethodPointer;
         }
 
+        if (newMethod->has_full_generic_sharing_signature)
+		{
+		    bool isAdjustorThunkMethod = IS_CLASS_VALUE_TYPE(newMethod->klass) && hybridclr::metadata::IsInstanceMethod(newMethod);
+			newMethod->methodPointerCallByInterp = newMethod->methodPointer;
+			if (!isAdjustorThunkMethod)
+			{
+				newMethod->virtualMethodPointerCallByInterp = newMethod->methodPointer;
+			}
+			else
+			{
+				newMethod->virtualMethodPointerCallByInterp = newMethod->virtualMethodPointer;
+			}
+		}
+
         bool isAotImplByInterp = hybridclr::metadata::MetadataModule::IsImplementedByInterpreter(newMethod);
         if (methodPointers.methodPointer == nullptr)
         {

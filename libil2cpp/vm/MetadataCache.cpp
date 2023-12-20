@@ -478,7 +478,7 @@ const Il2CppGenericInst* il2cpp::vm::MetadataCache::GetGenericInst(const Il2CppT
     return newInst;
 }
 
-// static baselib::ReentrantLock s_GenericMethodMutex;
+static baselib::ReentrantLock s_GenericMethodMutex;
 const Il2CppGenericMethod* il2cpp::vm::MetadataCache::GetGenericMethod(const MethodInfo* methodDefinition, const Il2CppGenericInst* classInst, const Il2CppGenericInst* methodInst)
 {
     Il2CppGenericMethod method = { 0 };
@@ -486,8 +486,7 @@ const Il2CppGenericMethod* il2cpp::vm::MetadataCache::GetGenericMethod(const Met
     method.context.class_inst = classInst;
     method.context.method_inst = methodInst;
 
-    // il2cpp::os::FastAutoLock lock(&s_GenericMethodMutex);
-    il2cpp::os::FastAutoLock lock(&il2cpp::vm::g_MetadataLock);
+    il2cpp::os::FastAutoLock lock(&s_GenericMethodMutex);
     Il2CppGenericMethodSet::const_iterator iter = s_GenericMethodSet.find(&method);
     if (iter != s_GenericMethodSet.end())
         return *iter;

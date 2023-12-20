@@ -323,7 +323,7 @@ namespace metadata
             }
         }
 
-        if (!newMethod->isInterpterImpl && !newMethod->indirect_call_via_invokers)
+        if (!newMethod->isInterpterImpl && (!newMethod->indirect_call_via_invokers || newMethod->has_full_generic_sharing_signature))
         {
             newMethod->methodPointerCallByInterp = newMethod->methodPointer;
             newMethod->virtualMethodPointerCallByInterp = GetVirtualCallMethodPointer(newMethod);

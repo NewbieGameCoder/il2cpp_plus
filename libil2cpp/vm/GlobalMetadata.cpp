@@ -1440,6 +1440,18 @@ Il2CppClass* il2cpp::vm::GlobalMetadata::GetParameterDeclaringType(Il2CppMetadat
     return GetTypeInfoFromTypeDefinitionIndex(genericContainer->ownerIndex);
 }
 
+const MethodInfo* il2cpp::vm::GlobalMetadata::GetParameterDeclaringMethod(Il2CppMetadataGenericParameterHandle handle)
+{
+    const Il2CppGenericParameter* genericParameter = reinterpret_cast<const Il2CppGenericParameter*>(handle);
+
+    const Il2CppGenericContainer* genericContainer =  GetGenericContainerFromIndexInternal(genericParameter->ownerIndex);
+
+    if (genericContainer->is_method)
+        return GetMethodInfoFromMethodDefinitionIndex(genericContainer->ownerIndex);
+
+    return NULL;
+}
+
 Il2CppMetadataGenericParameterHandle il2cpp::vm::GlobalMetadata::GetGenericParameterFromIndex(Il2CppMetadataGenericContainerHandle handle, GenericContainerParameterIndex index)
 {
     const Il2CppGenericContainer* genericContainer = reinterpret_cast<const Il2CppGenericContainer*>(handle);
@@ -1461,6 +1473,12 @@ const Il2CppType* il2cpp::vm::GlobalMetadata::GetGenericParameterConstraintFromI
     IL2CPP_ASSERT(index >= 0 && index < genericParameter->constraintsCount);
 
     index = genericParameter->constraintsStart + index;
+
+    if (hybridclr::metadata::IsInterpreterIndex(genericParameter->ownerIndex))
+    {
+        return hybridclr::metadata::MetadataModule::GetImage(hybridclr::metadata::DecodeImageIndex(genericParameter->ownerIndex))
+            ->GetGenericParameterConstraintFromIndex(index);
+    }
 
     IL2CPP_ASSERT(index >= 0 && static_cast<uint32_t>(index) <= s_GlobalMetadataHeader->genericParameterConstraintsSize / sizeof(TypeIndex));
     const TypeIndex* constraintIndices = (const TypeIndex*)((const char*)s_GlobalMetadata + s_GlobalMetadataHeader->genericParameterConstraintsOffset);

@@ -826,10 +826,6 @@ static bool GenericInstancesMatch(const MethodInfo* method, const MethodInfo* ma
 
 Il2CppMethodPointer il2cpp::vm::MetadataCache::GetReversePInvokeWrapper(const Il2CppImage* image, const MethodInfo* method)
 {
-    if (hybridclr::metadata::IsInterpreterImage(image))
-    {
-        return hybridclr::metadata::MetadataModule::GetReversePInvokeWrapper(image, method);
-    }
     if (image->codeGenModule->reversePInvokeWrapperCount == 0)
         return NULL;
 
@@ -1061,6 +1057,11 @@ Il2CppClass* il2cpp::vm::MetadataCache::GetContainerDeclaringType(Il2CppMetadata
 Il2CppClass* il2cpp::vm::MetadataCache::GetParameterDeclaringType(Il2CppMetadataGenericParameterHandle handle)
 {
     return il2cpp::vm::GlobalMetadata::GetParameterDeclaringType(handle);
+}
+
+const MethodInfo* il2cpp::vm::MetadataCache::GetParameterDeclaringMethod(Il2CppMetadataGenericParameterHandle handle)
+{
+    return il2cpp::vm::GlobalMetadata::GetParameterDeclaringMethod(handle);
 }
 
 Il2CppMetadataGenericParameterHandle il2cpp::vm::MetadataCache::GetGenericParameterFromIndex(Il2CppMetadataGenericContainerHandle handle, GenericContainerParameterIndex index)

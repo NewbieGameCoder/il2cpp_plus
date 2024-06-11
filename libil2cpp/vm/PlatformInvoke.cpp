@@ -17,6 +17,10 @@
 #include "vm-utils/NativeDelegateMethodCache.h"
 #include "vm-utils/VmStringUtils.h"
 
+#include "hybridclr/metadata/MetadataUtil.h"
+#include "hybridclr/metadata/MetadataModule.h"
+#include "hybridclr/interpreter/InterpreterModule.h"
+
 #include <stdint.h>
 #include <algorithm>
 
@@ -382,6 +386,26 @@ namespace vm
         return false;
     }
 
+    static Il2CppCallConvention GetDelegateCallConvention(Il2CppDelegate* d)
+    {
+        CustomAttributesCache* customAttributes = MetadataCache::GenerateCustomAttributesCache(d->object.klass->image, d->object.klass->token);
+        if (customAttributes == nullptr)
+        {
+            return Il2CppCallConvention::IL2CPP_CALL_DEFAULT;
+        }
+        for (int i = 0; i < customAttributes->count; i++)
+        {
+            Il2CppObject* attribute = customAttributes->attributes[i];
+            if (attribute->klass->image == il2cpp_defaults.corlib && !strcmp(attribute->klass->name, "UnmanagedFunctionPointerAttribute"))
+            {
+                int32_t callConv = *(int32_t*)(attribute + 1);
+                IL2CPP_ASSERT(callConv >= 1 && callConv <= 5);
+                return (Il2CppCallConvention)(callConv - 1);
+            }
+        }
+        return IL2CPP_CALL_DEFAULT;
+    }
+
     intptr_t PlatformInvoke::MarshalDelegate(Il2CppDelegate* d)
     {
 #if IL2CPP_TINY
@@ -395,6 +419,13 @@ namespace vm
             return reinterpret_cast<intptr_t>(d->method->nativeFunction);
 
         IL2CPP_ASSERT(d->method->methodMetadataHandle);
+
+        const MethodInfo* method = d->method;
+        if (method && hybridclr::metadata::IsInterpreterImplement(method))
+        {
+            Il2CppCallConvention callConvention = GetDelegateCallConvention(d);
+            return reinterpret_cast<intptr_t>(hybridclr::interpreter::InterpreterModule::GetReversePInvokeWrapper(d->method->klass->image, method, callConvention));
+        }
 
         Il2CppMethodPointer reversePInvokeWrapper = MetadataCache::GetReversePInvokeWrapper(d->method->klass->image, d->method);
         if (reversePInvokeWrapper == NULL)

@@ -142,6 +142,9 @@ namespace vm
         static Il2CppMetadataParameterInfo GetParameterInfo(const Il2CppClass* klass, Il2CppMetadataMethodDefinitionHandle handle, MethodParameterIndex index);
         static Il2CppMetadataPropertyInfo GetPropertyInfo(const Il2CppClass* klass, TypePropertyIndex index);
         static Il2CppMetadataEventInfo GetEventInfo(const Il2CppClass* klass, TypeEventIndex index);
+#if SUPPORT_METHOD_RETURN_TYPE_CUSTOM_ATTRIBUTE
+        static uint32_t GetReturnParameterToken(Il2CppMetadataMethodDefinitionHandle handle);
+#endif
 
         static Il2CppMetadataGenericContainerHandle GetGenericContainerFromGenericClass(const Il2CppGenericClass* genericClass);
         static Il2CppMetadataGenericContainerHandle GetGenericContainerFromMethod(Il2CppMetadataMethodDefinitionHandle handle);

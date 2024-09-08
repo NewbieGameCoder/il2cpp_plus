@@ -171,6 +171,7 @@ namespace vm
             stackFrames->clear();
 
             utils::Debugger::GetStackFrames(stackFrames);
+            hybridclr::interpreter::InterpreterModule::GetCurrentThreadMachineState().CollectFrames(stackFrames);
 
             return stackFrames;
         }
